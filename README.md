@@ -1,0 +1,1 @@
+# result_for_article
