@@ -6,9 +6,63 @@
     <title>GeoJSON with Layer Control</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { height: 500px; width: 100%; }
+        #photo-modal { 
+            display: none; 
+            position: fixed; 
+            top: 20%; 
+            left: 50%; 
+            transform: translate(-50%, -20%); 
+            background: white; 
+            padding: 20px; 
+            border: 1px solid #ccc; 
+            z-index: 1000; 
+            text-align: center; 
+        }
+        #overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.5); 
+            z-index: 999; 
+        }
+        #photo-modal img { 
+            max-width: 90%; 
+            max-height: 400px; 
+        }
+        .nav-button {
+            cursor: pointer; 
+            background-color: #007BFF; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            margin: 10px; 
+            border-radius: 5px; 
+        }
+        .nav-button:hover { 
+            background-color: #0056b3; 
+        }
+    </style>
+
 </head>
 <body>
     <div id="map" style="width: 100%; height: 700px;"></div>
+    <button id="viewPhotosBtn" style="position: absolute; top: 150px; right: 10px; z-index: 1000;">View statistics (charts)</button>
+    <div id="overlay"></div>
+    <div id="photo-modal">
+        <span id="closeModal" style="cursor: pointer; float: right; font-size: 20px;">&times;</span>
+        <h2 id="photoTitle"></h2>
+        <img id="photoDisplay" src="" alt="Фото" />
+        <br>
+        <button id="zoomIn" class="nav-button"> Zoom </button>
+        <button id="prevPhoto" class="nav-button">← Previous</button>
+        <button id="nextPhoto" class="nav-button">Next →</button>
+    </div>
+
     <script>
         // Initialize the map
         const map = L.map('map').setView([41.311081, 69.240562], 11);
@@ -215,7 +269,82 @@
             }
         });
 
-           
+            
+
+        // Фотографии из файла
+        const photos = [
+            { title: "Diagram 1", url: "photo1.jpg" },
+            { title: "Diagram 2", url: "photo2.jpg" },
+            { title: "Diagram 3", url: "photo3.jpg" },
+        ];
+
+        let currentPhotoIndex = 0;
+
+        // Обработчик кнопки "Посмотреть фотографии"
+        document.getElementById('viewPhotosBtn').addEventListener('click', () => {
+            showPhoto(currentPhotoIndex);
+        });
+
+        // Закрытие модального окна
+        document.getElementById('closeModal').addEventListener('click', closePhotoModal);
+        document.getElementById('overlay').addEventListener('click', closePhotoModal);
+
+        // Показать фотографию
+        function showPhoto(index) {
+            const photo = photos[index];
+            if (!photo) return;
+
+            // Сбросить зум при смене фото
+            resetZoom();
+
+            document.getElementById('photoTitle').innerText = photo.title;
+            document.getElementById('photoDisplay').src = photo.url;
+            document.getElementById('photo-modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        // Закрытие окна
+        function closePhotoModal() {
+            document.getElementById('photo-modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // Обработчик кнопки "Следующее фото"
+        document.getElementById('nextPhoto').addEventListener('click', () => {
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length; // Цикличный переход
+            showPhoto(currentPhotoIndex);
+        });
+
+        // Обработчик кнопки "Предыдущее фото"
+        document.getElementById('prevPhoto').addEventListener('click', () => {
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length; // Цикличный переход
+            showPhoto(currentPhotoIndex);
+        });
+
+        // Обработчик кнопки "Увеличить"
+        document.getElementById('zoomIn').addEventListener('click', toggleZoom);
+
+        // Функция переключения состояния зума
+        function toggleZoom() {
+            const img = document.getElementById('photoDisplay');
+            if (!zoomed) {
+                img.style.transform = 'scale(1.5)'; // Увеличить в 1.5 раза
+                img.style.transition = 'transform 0.3s';
+                zoomed = true;
+                document.getElementById('zoomIn').innerText = 'Уменьшить';
+            } else {
+                resetZoom();
+            }
+        }
+
+        // Функция сброса зума
+        function resetZoom() {
+            const img = document.getElementById('photoDisplay');
+            img.style.transform = 'scale(1)'; // Вернуть нормальный размер
+            img.style.transition = 'transform 0.3s';
+            zoomed = false;
+            document.getElementById('zoomIn').innerText = 'Zoom';
+        }     
 
     </script>
     
