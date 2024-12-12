@@ -16,8 +16,8 @@
         }
         .icon-button {
             position: absolute;
-            top: 12%;
-            right: 10px;
+            top: 10%;
+            left: 10px;
             background: none;
             border: none;
             cursor: pointer;
@@ -25,13 +25,13 @@
             padding: 0;
         }
         .icon-button img {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
         }
         .additional-buttons {
             position: absolute;
             top: 170px;
-            right: 10px;
+            left: 10px;
             display: none;
             flex-direction: column;
             gap: 5px;
@@ -73,9 +73,9 @@
 
     <!-- Дополнительные кнопки -->
     <div class="additional-buttons" id="additional-buttons">
-        <button onclick="showPhoto('photo1.jpg')">Size of Fireball, Danger Zone and Impacted Zone (per Station)</button>
-        <button onclick="showPhoto('photo2.jpg')">Induced Building Damage (per Station)</button>
-        <button onclick="showPhoto('photo3.jpg')">Induced Human Injury (per Station)</button>
+        <button data-photo="photo1.jpeg">Size of Fireball, Danger Zone and Impacted Zone (per Station)</button>
+        <button data-photo="photo2.jpeg">Induced Building Damage (per Station)</button>
+        <button data-photo="photo3.jpeg">Induced Human Injury (per Station)</button>
     </div>
 
     <!-- Контейнер для фото -->
@@ -293,31 +293,44 @@
         // Функция для отображения дополнительных кнопок
         function toggleAdditionalButtons() {
             const buttons = document.getElementById('additional-buttons');
-            const photoContainer = document.getElementById('photo-container'); // Контейнер для фото
-
             if (buttons.style.display === 'flex') {
                 buttons.style.display = 'none';
-                photoContainer.style.display = 'none'; // Скрываем фото при закрытии кнопок
             } else {
                 buttons.style.display = 'flex';
             }
         }
 
-        // Функция для отображения фото
-        function showPhoto(url) {
+        function togglePhoto(url) {
             const photoContainer = document.getElementById('photo-container');
             const photo = document.getElementById('photo');
+
+            // Если фото уже отображается
+            if (photoContainer.style.display === 'block') {
+                // Проверяем, соответствует ли текущее фото переданному URL
+                const currentPhotoUrl = photo.src.split('/').pop(); // Извлекаем имя файла из пути
+                if (currentPhotoUrl === url) {
+                    // Если URL совпадает, скрываем фото
+                    photoContainer.style.display = 'none';
+                    return;
+                }
+            }
+
+            // В остальных случаях отображаем фото
             photo.src = url;
             photoContainer.style.display = 'block';
         }
 
-         // Функция для скрытия всплывающего окна
-         function hidePopup() {
-            const popup = document.getElementById('popup');
-            const mainButton = document.getElementById('main-button');
-            popup.style.display = 'none';
-            mainButton.style.top = '70px'; // Возврат в начальное положение
-        }
+
+        // Привязка событий к кнопкам внутри additional-buttons
+        document.querySelectorAll('.additional-buttons button').forEach(button => {
+            button.addEventListener('click', () => {
+                const url = button.getAttribute('data-photo'); // Получаем URL из data-photo
+                togglePhoto(url);
+            });
+        });
+
+
+
 
 
 
